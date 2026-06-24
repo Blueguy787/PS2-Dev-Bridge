@@ -15,16 +15,29 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Install build tools
-        run: apk add --no-cache make bash
+      - name: Install build tools and compatibility layers
+        run: |
+          # 1. make and bash to run the scripts
+          # 2. libc6-compat and gcompat fix the "No such file" error when Alpine 
+          #    tries to execute pre-compiled glibc binaries.
+          # 3. gmp-dev, mpfr-dev, mpc1-dev are dynamic libs required by the PS2 GCC compiler.
+          apk add --no-cache make bash libc6-compat gcompat gmp-dev mpfr-dev mpc1-dev zlib-dev
 
       - name: Build projects
-        # By defining everything in one continuous run block, 
-        # we guarantee the PATH cannot be stripped by the runner.
         run: |
           export PS2DEV=/usr/local/ps2dev
           export PS2SDK=$PS2DEV/ps2sdk
           export PATH=$PS2DEV/bin:$PS2DEV/ee/bin:$PS2DEV/iop/bin:$PS2DEV/dvp/bin:$PS2SDK/bin:$PATH
+          
+          # In newer ps2dev images, 'ee-gcc' is renamed to 'mips64r5900el-ps2-elf-gcc'. 
+          # We create symlinks so Makefiles calling 'ee-gcc' directly still work perfectly.
+          if [ ! -f "$PS2DEV/ee/bin/ee-gcc" ] && [ -f "$PS2DEV/ee/bin/mips64r5900el-ps2-elf-gcc" ]; then
+            echo "Compiler aliases missing. Creating ee- legacy symlinks..."
+            for file in $PS2DEV/ee/bin/mips64r5900el-ps2-elf-*; do
+              # Extracts the tool name (e.g., gcc, as, ld) and symlinks it to ee-gcc, ee-as, etc.
+              ln -sf "$file" "$PS2DEV/ee/bin/ee-${file##*-}"
+            done
+          fi
           
           make -C ps2dev_bridge/ps2stub
           make -C ps2dev_bridge/launcher
