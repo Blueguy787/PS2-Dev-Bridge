@@ -11,12 +11,16 @@ jobs:
     container:
       image: ps2dev/ps2dev:latest
     
-    # Define environment variables at the job level so they are 
-    # available to all steps automatically.
+    # Define standard PS2DEV paths as environment variables
     env:
       PS2DEV: /usr/local/ps2dev
       PS2SDK: /usr/local/ps2dev/ps2sdk
       PATH: /usr/local/ps2dev/bin:/usr/local/ps2dev/ee/bin:/usr/local/ps2dev/iop/bin:/usr/local/ps2dev/dvp/bin:/usr/local/ps2dev/ps2sdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+    # Force all run steps to use a login shell to ensure environment sourcing
+    defaults:
+      run:
+        shell: bash -l {0}
 
     steps:
       - name: Checkout source
@@ -25,28 +29,12 @@ jobs:
       - name: Install build tools
         run: apk add --no-cache make
 
-      # The "Set up ps2dev environment" step is no longer needed 
-      # because the environment is set via the 'env' block above.
-
-      - name: Build ps2stub
+      - name: Build projects
         run: |
-          cd ps2dev_bridge/ps2stub
-          make
-
-      - name: Build launcher
-        run: |
-          cd ps2dev_bridge/launcher
-          make
-
-      - name: Build phase1 ELFs
-        run: |
-          cd ps2dev_bridge/elfs/phase1
-          make
-
-      - name: Build phase2 ELFs
-        run: |
-          cd ps2dev_bridge/elfs/phase2
-          make
+          cd ps2dev_bridge/ps2stub && make
+          cd ../launcher && make
+          cd ../elfs/phase1 && make
+          cd ../phase2 && make
 
       - name: Collect ELFs
         run: |
