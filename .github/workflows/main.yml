@@ -3,7 +3,7 @@ name: Build PS2 ELFs
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch:   # allows manual trigger from the Actions tab
+  workflow_dispatch:
 
 jobs:
   build:
@@ -17,35 +17,35 @@ jobs:
 
       - name: Build ps2stub
         run: |
-          cd ps2stub
+          cd ps2dev_bridge/ps2stub
           make
 
       - name: Build launcher
         run: |
-          cd launcher
+          cd ps2dev_bridge/launcher
           make
 
       - name: Build phase1 ELFs
         run: |
-          cd elfs/phase1
+          cd ps2dev_bridge/elfs/phase1
           make
 
       - name: Build phase2 ELFs
         run: |
-          cd elfs/phase2
+          cd ps2dev_bridge/elfs/phase2
           make
 
       - name: Collect ELFs
         run: |
           mkdir -p dist
-          cp ps2stub/ps2dev_stub.elf       dist/
-          cp launcher/ps2dev_launcher.elf  dist/
-          cp elfs/phase1/hello.elf         dist/
-          cp elfs/phase1/ramdump.elf       dist/
-          cp elfs/phase1/ramdump_interactive.elf dist/
-          cp elfs/phase2/regdump.elf       dist/
-          cp elfs/phase2/threadlist.elf    dist/
-          cp elfs/phase2/ioppeek.elf       dist/
+          cp ps2dev_bridge/ps2stub/ps2dev_stub.elf              dist/
+          cp ps2dev_bridge/launcher/ps2dev_launcher.elf         dist/
+          cp ps2dev_bridge/elfs/phase1/hello.elf                dist/
+          cp ps2dev_bridge/elfs/phase1/ramdump.elf              dist/
+          cp ps2dev_bridge/elfs/phase1/ramdump_interactive.elf  dist/
+          cp ps2dev_bridge/elfs/phase2/regdump.elf              dist/
+          cp ps2dev_bridge/elfs/phase2/threadlist.elf           dist/
+          cp ps2dev_bridge/elfs/phase2/ioppeek.elf              dist/
 
       - name: Upload ELFs as artifacts
         uses: actions/upload-artifact@v4
