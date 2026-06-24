@@ -11,10 +11,6 @@ jobs:
     container:
       image: ps2dev/ps2dev:latest
     
-    env:
-      PS2DEV: /usr/local/ps2dev
-      PS2SDK: /usr/local/ps2dev/ps2sdk
-
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -25,14 +21,15 @@ jobs:
       - name: Build projects
         shell: bash
         run: |
-          # Use an explicit variable override for the compiler path
-          # This forces make to use the absolute path regardless of the shell PATH
-          COMPILER_PATH=/usr/local/ps2dev/ee/bin/ee-gcc
+          # Explicitly source the environment setup script provided by the image
+          # This sets the PATH and environment variables for the entire toolchain
+          source /etc/profile
           
-          make -C ps2dev_bridge/ps2stub EE_GCC=$COMPILER_PATH
-          make -C ps2dev_bridge/launcher EE_GCC=$COMPILER_PATH
-          make -C ps2dev_bridge/elfs/phase1 EE_GCC=$COMPILER_PATH
-          make -C ps2dev_bridge/elfs/phase2 EE_GCC=$COMPILER_PATH
+          # Now run the builds
+          make -C ps2dev_bridge/ps2stub
+          make -C ps2dev_bridge/launcher
+          make -C ps2dev_bridge/elfs/phase1
+          make -C ps2dev_bridge/elfs/phase2
 
       - name: Collect ELFs
         run: |
