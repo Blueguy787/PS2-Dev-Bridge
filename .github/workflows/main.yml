@@ -19,13 +19,13 @@ jobs:
         run: apk add --no-cache make bash
 
       - name: Build projects
-        shell: bash
+        # By defining everything in one continuous run block, 
+        # we guarantee the PATH cannot be stripped by the runner.
         run: |
-          # Explicitly source the environment setup script provided by the image
-          # This sets the PATH and environment variables for the entire toolchain
-          source /etc/profile
+          export PS2DEV=/usr/local/ps2dev
+          export PS2SDK=$PS2DEV/ps2sdk
+          export PATH=$PS2DEV/bin:$PS2DEV/ee/bin:$PS2DEV/iop/bin:$PS2DEV/dvp/bin:$PS2SDK/bin:$PATH
           
-          # Now run the builds
           make -C ps2dev_bridge/ps2stub
           make -C ps2dev_bridge/launcher
           make -C ps2dev_bridge/elfs/phase1
