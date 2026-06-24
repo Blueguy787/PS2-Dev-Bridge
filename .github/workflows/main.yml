@@ -11,12 +11,6 @@ jobs:
     container:
       image: ps2dev/ps2dev:latest
     
-    env:
-      PS2DEV: /usr/local/ps2dev
-      PS2SDK: /usr/local/ps2dev/ps2sdk
-      PATH: /usr/local/ps2dev/bin:/usr/local/ps2dev/ee/bin:/usr/local/ps2dev/iop/bin:/usr/local/ps2dev/dvp/bin:/usr/local/ps2dev/ps2sdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
-    # Use default sh (compatible with Alpine/ps2dev image)
     defaults:
       run:
         shell: sh
@@ -26,11 +20,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install build tools
-        # Install both make and bash in case any Makefile explicitly requires bash
         run: apk add --no-cache make bash
 
       - name: Build projects
         run: |
+          # Source the profile to ensure toolchain paths are loaded
+          . /etc/profile
+          
           cd ps2dev_bridge/ps2stub && make
           cd ../launcher && make
           cd ../elfs/phase1 && make
