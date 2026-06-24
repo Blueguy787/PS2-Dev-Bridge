@@ -10,6 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ps2dev/ps2dev:latest
+    
+    # Define environment variables at the job level so they are 
+    # available to all steps automatically.
+    env:
+      PS2DEV: /usr/local/ps2dev
+      PS2SDK: /usr/local/ps2dev/ps2sdk
+      PATH: /usr/local/ps2dev/bin:/usr/local/ps2dev/ee/bin:/usr/local/ps2dev/iop/bin:/usr/local/ps2dev/dvp/bin:/usr/local/ps2dev/ps2sdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
     steps:
       - name: Checkout source
@@ -18,15 +25,8 @@ jobs:
       - name: Install build tools
         run: apk add --no-cache make
 
-      - name: Set up ps2dev environment
-        run: |
-          echo "PS2DEV=/usr/local/ps2dev" >> $GITHUB_ENV
-          echo "PS2SDK=/usr/local/ps2dev/ps2sdk" >> $GITHUB_ENV
-          echo "/usr/local/ps2dev/bin" >> $GITHUB_PATH
-          echo "/usr/local/ps2dev/ee/bin" >> $GITHUB_PATH
-          echo "/usr/local/ps2dev/iop/bin" >> $GITHUB_PATH
-          echo "/usr/local/ps2dev/dvp/bin" >> $GITHUB_PATH
-          echo "/usr/local/ps2dev/ps2sdk/bin" >> $GITHUB_PATH
+      # The "Set up ps2dev environment" step is no longer needed 
+      # because the environment is set via the 'env' block above.
 
       - name: Build ps2stub
         run: |
