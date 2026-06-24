@@ -11,20 +11,11 @@ jobs:
     container:
       image: ps2dev/ps2dev:latest
     
-    # Explicitly point to the toolchain directories
+    # We set these as environment variables so they are exported to all processes
     env:
       PS2DEV: /usr/local/ps2dev
       PS2SDK: /usr/local/ps2dev/ps2sdk
-      # Add all toolchain paths to the PATH variable
       PATH: /usr/local/ps2dev/bin:/usr/local/ps2dev/ee/bin:/usr/local/ps2dev/iop/bin:/usr/local/ps2dev/dvp/bin:/usr/local/ps2dev/ps2sdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      # Force make to use these paths specifically
-      EE_PREFIX: ee-
-      IOP_PREFIX: iop-
-      DVP_PREFIX: dvp-
-
-    defaults:
-      run:
-        shell: sh
 
     steps:
       - name: Checkout source
@@ -34,12 +25,14 @@ jobs:
         run: apk add --no-cache make bash
 
       - name: Build projects
+        # We use 'bash -c' to ensure the environment variables in 'env' 
+        # are properly respected and passed down to the make subprocesses.
+        shell: bash
         run: |
-          # Use make's variable override to ensure it finds the compiler
-          cd ps2dev_bridge/ps2stub && make EE_GCC=/usr/local/ps2dev/ee/bin/ee-gcc
-          cd ../launcher && make EE_GCC=/usr/local/ps2dev/ee/bin/ee-gcc
-          cd ../elfs/phase1 && make EE_GCC=/usr/local/ps2dev/ee/bin/ee-gcc
-          cd ../elfs/phase2 && make EE_GCC=/usr/local/ps2dev/ee/bin/ee-gcc
+          make -C ps2dev_bridge/ps2stub
+          make -C ps2dev_bridge/launcher
+          make -C ps2dev_bridge/elfs/phase1
+          make -C ps2dev_bridge/elfs/phase2
 
       - name: Collect ELFs
         run: |
