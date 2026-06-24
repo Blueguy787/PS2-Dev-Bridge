@@ -15,6 +15,9 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
+      - name: Install build tools
+        run: apt-get update && apt-get install -y make
+
       - name: Build ps2stub
         run: |
           cd ps2dev_bridge/ps2stub
