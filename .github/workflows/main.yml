@@ -18,6 +18,16 @@ jobs:
       - name: Install build tools
         run: apk add --no-cache make
 
+      - name: Set up ps2dev environment
+        run: |
+          echo "PS2DEV=/usr/local/ps2dev" >> $GITHUB_ENV
+          echo "PS2SDK=/usr/local/ps2dev/ps2sdk" >> $GITHUB_ENV
+          echo "/usr/local/ps2dev/bin" >> $GITHUB_PATH
+          echo "/usr/local/ps2dev/ee/bin" >> $GITHUB_PATH
+          echo "/usr/local/ps2dev/iop/bin" >> $GITHUB_PATH
+          echo "/usr/local/ps2dev/dvp/bin" >> $GITHUB_PATH
+          echo "/usr/local/ps2dev/ps2sdk/bin" >> $GITHUB_PATH
+
       - name: Build ps2stub
         run: |
           cd ps2dev_bridge/ps2stub
